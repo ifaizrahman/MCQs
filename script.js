@@ -5408,17 +5408,39 @@ const submitBtn = document.getElementById('submit');
 const backBtn = document.getElementById('back');
 const skipBtn = document.getElementById('skip');
 
-// === NEW: GET MODAL ELEMENTS ===
 const modal = document.getElementById('popup-modal');
 const closeBtn = document.querySelector('.close-button');
 
+// === NEW: CONFIG ===
+const TEST_DURATION_SEC = 240 * 60;     // 240 minutes = 4 hrs
+const QUESTION_DURATION_SEC = 3 * 60;   // 3 minutes per question
+const WARN_THRESHOLD = 0.30;            // warn when <30% time left
+const DANGER_THRESHOLD = 0.10;          // danger when <10% time left
 
-// === DEFINE VARIABLES FOR THE QUIZ LOGIC ===
-let quizData; // This will hold the questions for the selected test
+// === VARIABLES ===
+let quizData;
 let currentQuiz = 0;
 let userAnswers = [];
+let timerInterval;
+let timeLeft;
+let currentDuration;
+let mode = "exam";        // default
+let timerType = "test";   // default
 
-// === ADD EVENT LISTENERS FOR TEST SELECTION BUTTONS ===
+// === MODE + TIMER CONTROLS ===
+document.querySelectorAll("input[name='mode']").forEach(radio => {
+    radio.addEventListener("change", () => {
+        mode = document.querySelector("input[name='mode']:checked").value;
+    });
+});
+
+document.querySelectorAll("input[name='timerType']").forEach(radio => {
+    radio.addEventListener("change", () => {
+        timerType = document.querySelector("input[name='timerType']:checked").value;
+    });
+});
+
+// === SELECT TEST ===
 const testSelectBtns = document.querySelectorAll('.test-select-btn');
 
 testSelectBtns.forEach(button => {
@@ -5431,13 +5453,20 @@ testSelectBtns.forEach(button => {
             userAnswers = [];
             testSelectionContainer.style.display = 'none';
             quiz.style.display = 'block';
+            
+            // Start timer
+            if (timerType === "test") {
+                startTimer(TEST_DURATION_SEC);
+            } else {
+                startTimer(QUESTION_DURATION_SEC);
+            }
+
             loadQuiz();
         }
     });
 });
 
-
-// Main function to load question and options
+// === LOAD QUESTION ===
 function loadQuiz() {
     deselectAnswers();
 
@@ -5454,7 +5483,7 @@ function loadQuiz() {
             listItem.style.display = 'none';
         }
     };
-    
+
     setupOption(currentQuizData.a, a_text);
     setupOption(currentQuizData.b, b_text);
     setupOption(currentQuizData.c, c_text);
@@ -5465,20 +5494,27 @@ function loadQuiz() {
     }
 
     backBtn.disabled = (currentQuiz === 0);
+    submitBtn.innerText = (currentQuiz === quizData.length - 1) ? 'Finish' : 'Submit';
 
-    if (currentQuiz === quizData.length - 1) {
-        submitBtn.innerText = 'Finish';
-    } else {
-        submitBtn.innerText = 'Submit';
+    // Update progress
+    updateProgress(currentQuiz + 1, quizData.length);
+
+    // Reset per-question timer if enabled
+    if (timerType === "question") {
+        startTimer(QUESTION_DURATION_SEC);
     }
+
+    // Add animation class
+    questionEl.classList.remove("fade-in");
+    void questionEl.offsetWidth; // trigger reflow
+    questionEl.classList.add("fade-in");
 }
 
-// Function to clear all radio button selections
+// === HELPERS ===
 function deselectAnswers() {
     answerEls.forEach(answerEl => answerEl.checked = false);
 }
 
-// Function to get the ID of the selected radio button
 function getSelected() {
     let answer;
     answerEls.forEach(answerEl => {
@@ -5489,17 +5525,13 @@ function getSelected() {
     return answer;
 }
 
-// === MODIFIED FUNCTION TO SHOW RESULTS AND TRIGGER POP-UP ===
+// === RESULTS ===
 function showResults() {
-    // 1. Calculate Score
     let score = 0;
-    quizData.forEach((questionData, index) => {
-        if (userAnswers[index] === questionData.correct) {
-            score++;
-        }
+    quizData.forEach((q, i) => {
+        if (userAnswers[i] === q.correct) score++;
     });
 
-    // 2. Build the results analysis HTML
     let resultsHTML = `
         <div class="quiz-header">
             <h2>Quiz Complete!</h2>
@@ -5510,50 +5542,113 @@ function showResults() {
         <div class="results-analysis">
             <h3>Detailed Analysis</h3>`;
 
-    quizData.forEach((questionData, index) => {
-        const userAnswerId = userAnswers[index];
-        const correctAnswerId = questionData.correct;
-        const correctAnswerText = questionData[correctAnswerId];
-        const isCorrect = userAnswerId === correctAnswerId;
+    quizData.forEach((q, i) => {
+        const userAns = userAnswers[i];
+        const correctAns = q.correct;
+        const correctText = q[correctAns];
+        const isCorrect = userAns === correctAns;
+
         let userAnswerHTML = '';
-        if (userAnswerId) {
-            const userAnswerText = questionData[userAnswerId];
+        if (userAns) {
+            const userText = q[userAns];
             if (isCorrect) {
-                userAnswerHTML = `<p>Your Answer: <span class="user-answer correct">${userAnswerText} ✅</span></p>`;
+                userAnswerHTML = `<p>Your Answer: <span class="user-answer correct">${userText} ✅</span></p>`;
             } else {
                 userAnswerHTML = `
-                    <p>Your Answer: <span class="user-answer incorrect">${userAnswerText} ❌</span></p>
-                    <p>Correct Answer: <span class="correct-answer">${correctAnswerText}</span></p>`;
+                    <p>Your Answer: <span class="user-answer incorrect">${userText} ❌</span></p>
+                    <p>Correct Answer: <span class="correct-answer">${correctText}</span></p>`;
             }
         } else {
             userAnswerHTML = `
                 <p>Your Answer: <span class="user-answer skipped">Skipped</span></p>
-                <p>Correct Answer: <span class="correct-answer">${correctAnswerText}</span></p>`;
+                <p>Correct Answer: <span class="correct-answer">${correctText}</span></p>`;
         }
+
         resultsHTML += `
             <div class="result-item">
-                <h4>${questionData.question}</h4>
+                <h4>${q.question}</h4>
                 ${userAnswerHTML}
             </div>`;
     });
+
     resultsHTML += '</div>';
     resultsHTML += `<button class="quiz-reload-btn" onclick="window.location.reload()">Take Another Test</button>`;
-
-    // 3. Update the DOM with the analysis
     quiz.innerHTML = resultsHTML;
 
-    // === NEW: LOGIC FOR POP-UP ===
-    // 4. Calculate percentage
     const percentage = (score / quizData.length) * 100;
+    if (percentage < 80) modal.style.display = 'flex'; 
+}
 
-    // 5. Show pop-up if score is less than 80%
-    if (percentage < 80) {
-        // We use 'flex' because that's how we are centering it in the CSS
-        modal.style.display = 'flex'; 
+// === PROGRESS BAR ===
+function updateProgress(current, total) {
+    const progressBar = document.getElementById("progress-bar");
+    const progressText = document.getElementById("progress-text");
+
+    if (progressBar && progressText) {
+        let percent = (current / total) * 100;
+        progressBar.style.width = percent + "%";
+        progressText.innerText = `Question ${current} of ${total}`;
+
+        if (percent < 40) {
+            progressBar.style.backgroundColor = "red";
+        } else if (percent < 70) {
+            progressBar.style.backgroundColor = "orange";
+        } else {
+            progressBar.style.backgroundColor = "green";
+        }
     }
 }
 
-// Event Listeners for the main quiz buttons
+// === TIMER FUNCTIONS ===
+function startTimer(duration) {
+    clearInterval(timerInterval);
+    timeLeft = duration;
+    currentDuration = duration;
+    updateTimerDisplay(timeLeft);
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft >= 0) {
+            updateTimerDisplay(timeLeft);
+        } else {
+            clearInterval(timerInterval);
+            if (timerType === "question") {
+                skipBtn.click();
+            } else {
+                showResults();
+            }
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay(secondsLeft) {
+    const timerEl = document.getElementById("timer");
+    timerEl.textContent = formatTime(secondsLeft);
+
+    const percent = secondsLeft / currentDuration;
+    if (percent <= DANGER_THRESHOLD) {
+        timerEl.style.color = "red";
+    } else if (percent <= WARN_THRESHOLD) {
+        timerEl.style.color = "orange";
+    } else {
+        timerEl.style.color = "green";
+    }
+}
+
+// Format seconds -> hh:mm:ss
+function formatTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const h = hours.toString().padStart(2, "0");
+    const m = minutes.toString().padStart(2, "0");
+    const s = seconds.toString().padStart(2, "0");
+
+    return `${h}:${m}:${s}`;
+}
+
+// === EVENT LISTENERS ===
 backBtn.addEventListener('click', () => {
     if (currentQuiz > 0) {
         currentQuiz--;
@@ -5575,6 +5670,17 @@ submitBtn.addEventListener('click', () => {
     const answer = getSelected();
     if (answer) {
         userAnswers[currentQuiz] = answer;
+
+        if (mode === "practice") {
+            // Instant feedback
+            const correctId = quizData[currentQuiz].correct;
+            if (answer === correctId) {
+                alert("✅ Correct!");
+            } else {
+                alert(`❌ Incorrect! Correct answer: ${quizData[currentQuiz][correctId]}`);
+            }
+        }
+
         currentQuiz++;
         if (currentQuiz < quizData.length) {
             loadQuiz();
@@ -5586,15 +5692,8 @@ submitBtn.addEventListener('click', () => {
     }
 });
 
-// === NEW: EVENT LISTENERS TO CLOSE THE MODAL ===
-// When the user clicks on <span> (x), close the modal
-closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-});
-
-// When the user clicks anywhere outside of the modal content, close it
-window.addEventListener('click', (event) => {
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
+// Modal close
+closeBtn.addEventListener('click', () => modal.style.display = 'none');
+window.addEventListener('click', (e) => {
+    if (e.target == modal) modal.style.display = 'none';
 });
