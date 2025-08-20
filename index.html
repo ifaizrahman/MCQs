@@ -1,17 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Medical Coding MCQ Quiz</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <h1 class="page-title">Sonu Bhaiyya Maheshbatna Wale</h1>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1 class="page-title">AcadmeX</h1>
 
     <div class="test-selection-container" id="test-selection">
-        <h2>Choose a Mock Test to Begin</h2>
+      <h2>Choose a Mock Test to Begin</h2>
+
+      <div class="controls-row" id="mode-controls">
+        <div class="control">
+          <label><strong>Mode:</strong></label>
+          <label>
+            <input type="radio" name="mode" value="exam" checked />
+            Exam
+          </label>
+          <label>
+            <input type="radio" name="mode" value="practice" />
+            Practice
+          </label>
+        </div>
+
+        <div class="control">
+          <label><strong>Timer:</strong></label>
+          <label>
+            <input type="radio" name="timerType" value="test" checked />
+            Per Test
+          </label>
+          <label>
+            <input type="radio" name="timerType" value="question" />
+            Per Question
+          </label>
+        </div>
+      </div>
+
+      <div class="test-buttons-grid">
         <button class="test-select-btn" data-testid="mockTest1">Mock Paper 1</button>
         <button class="test-select-btn" data-testid="mockTest2">Mock Paper 2</button>
         <button class="test-select-btn" data-testid="mockTest3">Mock Paper 3</button>
@@ -20,45 +47,56 @@
         <button class="test-select-btn" data-testid="mockTest6">Mock Paper 6</button>
         <button class="test-select-btn" data-testid="mockTest7">Mock Paper 7</button>
         <button class="test-select-btn" data-testid="mockTest8">Mock Paper 8</button>
+      </div>
     </div>
 
     <div class="quiz-container" id="quiz" style="display: none;">
-        <div class="quiz-header">
-            <h2 id="question">Question text goes here</h2>
-            <ul>
-                <li>
-                    <input type="radio" name="answer" id="a" class="answer">
-                    <label for="a" id="a_text">Option A</label>
-                </li>
-                <li>
-                    <input type="radio" name="answer" id="b" class="answer">
-                    <label for="b" id="b_text">Option B</label>
-                </li>
-                <li>
-                    <input type="radio" name="answer" id="c" class="answer">
-                    <label for="c" id="c_text">Option C</label>
-                </li>
-                <li>
-                    <input type="radio" name="answer" id="d" class="answer">
-                    <label for="d" id="d_text">Option D</label>
-                </li>
-            </ul>
-        </div>
-        <div class="quiz-footer">
+      <div class="quiz-topbar">
+        <p id="progress-text">Question 1 of 10</p>
+        <div id="timer" class="timer">00:00</div>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <div class="quiz-header">
+        <h2 id="question">Question text goes here</h2>
+        <ul>
+          <li>
+            <input type="radio" name="answer" id="a" class="answer" />
+            <label for="a" id="a_text">Option A</label>
+          </li>
+          <li>
+            <input type="radio" name="answer" id="b" class="answer" />
+            <label for="b" id="b_text">Option B</label>
+          </li>
+          <li>
+            <input type="radio" name="answer" id="c" class="answer" />
+            <label for="c" id="c_text">Option C</label>
+          </li>
+          <li>
+            <input type="radio" name="answer" id="d" class="answer" />
+            <label for="d" id="d_text">Option D</label>
+          </li>
+        </ul>
+      </div>
+
+      <div class="quiz-footer">
         <button id="back">Back</button>
         <button id="skip">Skip</button>
         <button id="submit">Submit</button>
-    </div>
+      </div>
     </div>
 
-     <div id="popup-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>TUMSE NA HO PAAYEGA</h2>
-            <p>Your score is below 80%.</p>
-        </div>
+    <div id="popup-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>TUMSE NA HO PAAYEGA</h2>
+        <p>Your score is below 80%.</p>
+      </div>
     </div>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
