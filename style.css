@@ -19,54 +19,65 @@
 }
 
 body {
-    background-image: linear-gradient(135deg, var(--background-gradient-start), var(--background-gradient-end));
     font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+    margin: 0;
+    padding: 0;
+    color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Center content vertically */
     min-height: 100vh;
-    padding: 20px;
 }
 
 .page-title {
     font-size: 2.5rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 2rem;
-    text-align: center;
+    margin: 1.5rem 0;
+    font-weight: 700;
+    color: #222;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Shared card style for both containers */
-.test-selection-container,
-.quiz-container {
-    background-color: var(--container-bg-color);
-    border-radius: 15px;
-    box-shadow: 0 5px 15px var(--shadow-color);
-    width: 600px;
-    max-width: 95vw;
-    overflow: hidden;
-    padding: 2.5rem;
-    margin-bottom: 1.5rem;
+/* --- UPDATED: Main container uses Flexbox for vertical alignment --- */
+.test-selection-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 800px; /* Increased width slightly */
+    width: 90%;
+    text-align: center;
+    animation: fadeIn 0.6s ease;
+    display: flex; /* Changed to flex */
+    flex-direction: column; /* Stack children vertically */
+    gap: 1.5rem; /* Space between title, controls, and grid */
 }
+
+/* Shared card style for quiz */
+.quiz-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 700px;
+    width: 90%;
+    text-align: center;
+    animation: fadeIn 0.6s ease;
+}
+
 
 .test-selection-container h2 {
-    text-align: center;
-    color: var(--text-color);
-    margin-bottom: 2rem;
-    font-size: 1.5rem;
+    margin: 0; /* Removed margin as gap is used */
+    color: #444;
+    font-size: 1.6rem;
 }
 
-/* Grid layout for test selection buttons */
-.test-selection-container {
+/* --- NEW: Grid layout applied to this new button container --- */
+.test-buttons-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
-}
-
-.test-selection-container h2 {
-    /* Make the title span all columns in the grid */
-    grid-column: 1 / -1;
+    width: 100%; /* Ensure it takes full width of parent */
 }
 
 .test-select-btn {
@@ -89,9 +100,43 @@ body {
     box-shadow: 0 4px 10px var(--shadow-color);
 }
 
+
+/* --- UPDATED: Styling for the controls row --- */
+.controls-row {
+    display: flex;
+    justify-content: center; /* Center the control boxes */
+    flex-wrap: wrap;
+    gap: 1.5rem; /* Increased gap between the two boxes */
+    width: 100%;
+}
+
+.control {
+    background: #f7f7f7; /* Light background for each box */
+    border: 1px solid #ddd; /* Outline for each box */
+    border-radius: 10px; /* Rounded corners for the box */
+    padding: 0.8rem 1.2rem; /* Padding inside each box */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Subtle shadow */
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.control strong {
+    color: #555;
+}
+
+.control label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+
 /* Quiz Section Styles */
 .quiz-header {
-    padding: 0; /* Padding is now on the parent .quiz-container */
+    padding: 0;
 }
 
 .quiz-header h2 {
@@ -107,8 +152,8 @@ ul {
 }
 
 ul li {
-    font-size: 1.1rem;
-    margin: 1rem 0;
+    font-size: 1rem;
+    margin: 0.6rem 0; /* reduced margin for consistency */
     border: 1px solid var(--light-grey-color);
     border-radius: 8px;
     transition: border-color 0.2s ease-in-out;
@@ -121,7 +166,12 @@ ul li:hover {
 ul li label {
     cursor: pointer;
     display: block;
-    padding: 1rem;
+    padding: 0.95rem 1.2rem; /* consistent with buttons */
+    font-size: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: left;
+    line-height: 1.4;
 }
 
 /* Hiding the default radio button */
@@ -133,11 +183,8 @@ ul li input[type="radio"] {
 ul li input[type="radio"]:checked + label {
     background-color: var(--primary-color);
     color: white;
-    border-radius: 7px; /* Match parent li's border-radius */
+    border-radius: 7px;
 }
-
-
-/* Remove the OLD #submit style block and add this instead */
 
 /* Quiz Footer and Buttons */
 .quiz-footer {
@@ -153,9 +200,9 @@ ul li input[type="radio"]:checked + label {
 
 .quiz-footer button {
     flex-grow: 1;
-    padding: 1rem;
+    padding: 0.95rem 1.2rem;  /* match option label */
     font-size: 1rem;
-    font-family: inherit;
+    line-height: 1.4;
     font-weight: 600;
     border-radius: 8px;
     cursor: pointer;
@@ -166,6 +213,8 @@ ul li input[type="radio"]:checked + label {
 #submit {
     background-color: var(--primary-color);
     color: #fff;
+    font-size: 1.05rem;   /* slightly larger to stand out */
+    padding: 1rem 1.3rem;
 }
 
 #submit:hover {
@@ -183,15 +232,13 @@ ul li input[type="radio"]:checked + label {
     background-color: #ced4da;
 }
 
-/* Style for the disabled back button on the first question */
 #back:disabled {
     background-color: #f1f3f5;
     color: #adb5bd;
     cursor: not-allowed;
 }
 
-
-/* Update the responsive adjustments for the new footer */
+/* Responsive Adjustments */
 @media (max-width: 640px) {
     .page-title {
         font-size: 2rem;
@@ -201,18 +248,24 @@ ul li input[type="radio"]:checked + label {
     .quiz-container {
         padding: 1.5rem;
     }
+    
+    .controls-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-    /* Update media query for the new footer */
     .quiz-footer {
         margin: 0 -1.5rem -1.5rem;
         width: calc(100% + 3rem);
         padding: 1rem 1.5rem;
         gap: 0.5rem;
+        flex-direction: column;
     }
 
     .quiz-footer button {
-        font-size: 0.9rem;
-        padding: 0.8rem;
+        font-size: 1.1rem;
+        padding: 0.9rem;
+        width: 100%;
     }
 }
 
@@ -252,27 +305,26 @@ ul li input[type="radio"]:checked + label {
 }
 
 .user-answer.correct {
-    color: #27ae60; /* Green */
+    color: #27ae60;
     font-weight: 600;
 }
 
 .user-answer.incorrect {
-    color: #c0392b; /* Red */
+    color: #c0392b;
     font-weight: 600;
 }
 
 .user-answer.skipped {
-    color: #7f8c8d; /* Grey */
+    color: #7f8c8d;
     font-style: italic;
 }
 
 .correct-answer {
-    color: #2980b9; /* Blue */
+    color: #2980b9;
     font-weight: 600;
 }
 
-
-/* Style for the button to reload the quiz page */
+/* Reload Button */
 .quiz-reload-btn {
     background-color: var(--primary-color);
     color: #fff;
@@ -292,17 +344,17 @@ ul li input[type="radio"]:checked + label {
 .quiz-reload-btn:hover {
     background-color: var(--primary-hover-color);
 }
-/* ADD THESE NEW STYLES FOR THE POP-UP MODAL */
 
+/* Modal */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place over the content */
-    z-index: 1000; /* Sit on top of everything */
+    display: none;
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    background-color: rgba(0, 0, 0, 0.5);
     align-items: center;
     justify-content: center;
 }
@@ -316,10 +368,9 @@ ul li input[type="radio"]:checked + label {
     text-align: center;
     position: relative;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.3s; /* Add a little fade-in animation */
+    animation: fadeIn 0.3s;
 }
 
-/* A simple animation for the modal appearing */
 @keyframes fadeIn {
    from { opacity: 0; transform: scale(0.9); }
    to { opacity: 1; transform: scale(1); }
@@ -351,4 +402,87 @@ ul li input[type="radio"]:checked + label {
      font-size: 1.1rem;
      line-height: 1.6;
      margin-bottom: 0.5rem;
+}
+
+/* Progress Bar */
+.progress-container {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    height: 20px;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+#progress-text {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+/* Question Card Styling */
+.quiz-header {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    animation: fadeIn 0.4s ease;
+    margin-bottom: 1.5rem;
+}
+
+ul li label:hover {
+    border-color: var(--primary-color);
+    background: rgba(52, 152, 219, 0.05);
+}
+
+ul li input[type="radio"]:checked + label {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(52, 152, 219, 0.7);
+    font-weight: 600;
+}
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+    .quiz-header h2 {
+        font-size: 1.2rem;
+    }
+    ul li label {
+        font-size: 1.05rem;
+    }
+}
+
+.quiz-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 0.75rem 0;
+}
+.timer {
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  background: #eef2f6;
+  color: var(--text-color);
+  min-width: 84px;
+  text-align: center;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+.timer--warn { background: #fff3cd; color: #856404; }
+.timer--danger { background: #f8d7da; color: #721c24; }
+
+.qcard-enter { opacity: 0; transform: translateY(12px); }
+.qcard-enter-active { opacity: 1; transform: translateY(0); transition: all 260ms ease; }
+.qcard-exit { opacity: 1; transform: translateY(0); }
+.qcard-exit-active { opacity: 0; transform: translateY(-10px); transition: all 220ms ease; }
+
+.quiz-footer button:hover,
+ul li label:hover {
+  transform: translateY(-1px);
 }
